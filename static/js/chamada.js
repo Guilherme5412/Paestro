@@ -1,3 +1,10 @@
+const appData = {
+    classes: {},
+    attendance_status: {},
+    observations: {},
+    saved_classes: new Set()
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const turmaSelect = document.getElementById('turma-select');
     const escolaSelect = document.getElementById('escola-select');
@@ -128,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const nomeAluno = prompt('Digite o nome do aluno:');
         if (nomeAluno) {
+            // Adiciona à tabela visual
             const row = alunosTable.insertRow();
             
             const cellNome = row.insertCell(0);
@@ -137,17 +145,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const presencaSelect = document.createElement('select');
             presencaSelect.className = 'presenca-select';
             presencaSelect.dataset.aluno = nomeAluno;
-            
             ['P', 'F', 'FJ'].forEach(opcao => {
                 const option = document.createElement('option');
                 option.value = opcao;
                 option.textContent = opcao;
-                if (opcao === 'P') {
-                    option.selected = true;
-                }
+                if (opcao === 'P') option.selected = true;
                 presencaSelect.appendChild(option);
             });
-            
             cellPresenca.appendChild(presencaSelect);
             
             const cellObs = row.insertCell(2);
@@ -157,6 +161,23 @@ document.addEventListener('DOMContentLoaded', function() {
             obsInput.dataset.aluno = nomeAluno;
             obsInput.value = '';
             cellObs.appendChild(obsInput);
+            
+            // Adiciona o aluno à estrutura de classes no frontend
+            if (!appData.classes[turma]) {
+                appData.classes[turma] = [];
+            }
+            appData.classes[turma].push(nomeAluno);
+            
+            // Inicializa os status para o novo aluno
+            if (!appData.attendance_status[turma]) {
+                appData.attendance_status[turma] = {};
+            }
+            appData.attendance_status[turma][nomeAluno] = 'P';
+            
+            if (!appData.observations[turma]) {
+                appData.observations[turma] = {};
+            }
+            appData.observations[turma][nomeAluno] = '';
         }
     });
     
@@ -168,6 +189,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Garante que a turma está nas estruturas de dados
+        if (!appData.classes[turma]) {
+            appData.classes[turma] = [];
+        }
+        if (!appData.attendance_status[turma]) {
+            appData.attendance_status[turma] = {};
+        }
+        if (!appData.observations[turma]) {
+            appData.observations[turma] = {};
+        }
+        
         const alunosData = [];
         const rows = alunosTable.rows;
         
@@ -176,6 +208,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const nome = cells[0].textContent;
             const presenca = cells[1].querySelector('select').value;
             const observacao = cells[2].querySelector('input').value;
+            
+            // Atualiza as estruturas de dados
+            if (!appData.classes[turma].includes(nome)) {
+                appData.classes[turma].push(nome);
+            }
+            appData.attendance_status[turma][nome] = presenca;
+            appData.observations[turma][nome] = observacao;
             
             alunosData.push({
                 nome: nome,
@@ -198,6 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 alert('Chamada da turma ' + turma + ' salva com sucesso!');
+                // Marca a turma como salva
+                appData.saved_classes.add(turma);
             } else {
                 alert('Erro ao salvar chamada: ' + (data.error || 'Desconhecido'));
             }

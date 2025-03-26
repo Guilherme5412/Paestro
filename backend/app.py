@@ -136,15 +136,30 @@ def save_attendance_data():
     turma = data.get('turma')
     alunos = data.get('alunos')
     
-    if turma not in app_data['classes']:
-        return jsonify({'success': False, 'error': 'Turma não encontrada'})
-    
     try:
-        for aluno in alunos:
-            app_data['attendance_status'][turma][aluno['nome']] = aluno['presenca']
-            app_data['observations'][turma][aluno['nome']] = aluno['observacao']
+        # Garante que a turma existe nas estruturas de dados
+        if turma not in app_data['classes']:
+            app_data['classes'][turma] = []
         
-        # Adiciona a turma ao conjunto de turmas salvas
+        if turma not in app_data['attendance_status']:
+            app_data['attendance_status'][turma] = {}
+        
+        if turma not in app_data['observations']:
+            app_data['observations'][turma] = {}
+        
+        # Atualiza os dados para todos os alunos
+        for aluno in alunos:
+            nome = aluno['nome']
+            
+            # Adiciona o aluno à lista da turma se não existir
+            if nome not in app_data['classes'][turma]:
+                app_data['classes'][turma].append(nome)
+            
+            # Atualiza presença e observação
+            app_data['attendance_status'][turma][nome] = aluno['presenca']
+            app_data['observations'][turma][nome] = aluno['observacao']
+        
+        # Marca a turma como salva
         app_data['saved_classes'].add(turma)
         
         return jsonify({'success': True})
