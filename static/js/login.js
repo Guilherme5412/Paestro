@@ -1,26 +1,39 @@
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const importarBtn = document.getElementById('importar-btn');
-    
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    const usernameInput = document.getElementById('username');
+    const periodoSelect = document.getElementById('periodo');
+
+    // Função para validar campos e mostrar notificações
+    function validateFields() {
+        let isValid = true;
         
-        // Obtém os valores dos campos
-        const username = document.getElementById('username').value.trim();
-        const periodoSelect = document.getElementById('periodo');
-        const periodo = periodoSelect ? periodoSelect.value : null;
+        if (!usernameInput.value.trim()) {
+            alert('Por favor, preencha o nome da dupla');
+            usernameInput.focus();
+            isValid = false;
+        } else if (!periodoSelect.value) {
+            alert('Por favor, selecione o período');
+            periodoSelect.focus();
+            isValid = false;
+        }
         
-        // Validação dos campos
-        if (!username || !periodo) {
-            alert('Por favor, preencha todos os campos corretamente');
+        return isValid;
+    }
+
+    // Configura o botão de importar
+    importarBtn.addEventListener('click', function(e) {
+        if (!validateFields()) {
             return;
         }
         
-        // Armazena no localStorage
+        // Se validado, faz login e redireciona para importar
+        const username = usernameInput.value.trim();
+        const periodo = periodoSelect.value;
+        
         localStorage.setItem('paestro_usuario', username);
         localStorage.setItem('paestro_periodo', periodo);
         
-        // Faz a requisição de login
         fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -28,38 +41,70 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({
                 username: username,
-                periodo: periodo  // Garante que o período está sendo enviado
+                periodo: periodo
             })
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro na resposta do servidor');
-            }
+            if (!response.ok) throw new Error('Erro no servidor');
             return response.json();
         })
         .then(data => {
             if (data.success) {
-                // Verifica se o período foi recebido de volta (para debug)
-                console.log('Login bem-sucedido. Período:', data.periodo || 'Não retornado');
-                
-                // Redireciona para a página de chamada
+                window.location.href = '/importar';
+            } else {
+                throw new Error(data.error || 'Erro ao fazer login');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert(error.message || 'Erro ao conectar com o servidor');
+        });
+    });
+
+    // Configura o formulário de login
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!validateFields()) {
+            return;
+        }
+        
+        const username = usernameInput.value.trim();
+        const periodo = periodoSelect.value;
+        
+        localStorage.setItem('paestro_usuario', username);
+        localStorage.setItem('paestro_periodo', periodo);
+        
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                periodo: periodo
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro no servidor');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
                 window.location.href = '/chamada';
             } else {
                 throw new Error(data.error || 'Erro ao fazer login');
             }
         })
         .catch(error => {
-            console.error('Erro no login:', error);
+            console.error('Erro:', error);
             alert(error.message || 'Erro ao conectar com o servidor');
         });
     });
-    
-    // Botão de importar
-    importarBtn.addEventListener('click', function() {
-        window.location.href = '/importar';
-    });
 
-    // Debug: Verifica se há valores salvos no localStorage
-    console.log('Usuário armazenado:', localStorage.getItem('paestro_usuario'));
-    console.log('Período armazenado:', localStorage.getItem('paestro_periodo'));
+    // Preenche campos se já existir no localStorage
+    const savedUser = localStorage.getItem('paestro_usuario');
+    const savedPeriodo = localStorage.getItem('paestro_periodo');
+    if (savedUser) usernameInput.value = savedUser;
+    if (savedPeriodo) periodoSelect.value = savedPeriodo;
 });
