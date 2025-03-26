@@ -1,4 +1,5 @@
 const appData = {
+    schools: {},
     classes: {},
     attendance_status: {},
     observations: {},
@@ -6,8 +7,8 @@ const appData = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    const turmaSelect = document.getElementById('turma-select');
     const escolaSelect = document.getElementById('escola-select');
+    const turmaSelect = document.getElementById('turma-select');
     const addAlunoBtn = document.getElementById('add-aluno-btn');
     const alunosTable = document.getElementById('alunos-table').getElementsByTagName('tbody')[0];
     const salvarChamadaBtn = document.getElementById('salvar-chamada-btn');
@@ -15,79 +16,82 @@ document.addEventListener('DOMContentLoaded', function() {
     const dataAtualElement = document.getElementById('data-atual');
     const nomeUsuarioElement = document.getElementById('nome-usuario');
     
-    // Exibe data atual
+    // Exibe data atual e usuário
     const hoje = new Date();
     dataAtualElement.textContent = hoje.toLocaleDateString('pt-BR');
+    nomeUsuarioElement.textContent = localStorage.getItem('paestro_usuario') || '';
     
-    // Recupera nome do usuário do localStorage
-    const nomeUsuario = localStorage.getItem('paestro_usuario');
-    if (nomeUsuario) {
-        nomeUsuarioElement.textContent = nomeUsuario;
+    // Carrega escolas disponíveis
+    function carregarEscolas() {
+        fetch('/api/get_schools')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    escolaSelect.innerHTML = '<option value="">Selecione uma escola</option>';
+                    data.schools.forEach(escola => {
+                        const option = document.createElement('option');
+                        option.value = escola;
+                        option.textContent = escola;
+                        escolaSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar escolas:', error);
+            });
     }
     
-    // Carrega turmas disponíveis
-    function carregarTurmas() {
-        // Tenta obter turmas do localStorage primeiro
-        const turmasSalvas = localStorage.getItem('turmas_disponiveis');
+    // Carrega turmas quando escola é selecionada
+    escolaSelect.addEventListener('change', function() {
+        const escola = this.value;
+        if (!escola) return;
         
-        if (turmasSalvas) {
-            const turmas = JSON.parse(turmasSalvas);
-            atualizarSelectTurmas(turmas);
-            console.log('Turmas carregadas do localStorage:', turmas);
-        } else {
-            // Se não tiver no localStorage, busca da API
-            fetch('/api/get_turmas')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        atualizarSelectTurmas(data.turmas);
-                        console.log('Turmas carregadas da API:', data.turmas);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar turmas:', error);
+        fetch('/api/get_school_classes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ school: escola })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                turmaSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                data.classes.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma;
+                    option.textContent = turma;
+                    turmaSelect.appendChild(option);
                 });
-        }
-    }
-    
-    // Função para atualizar o select com as turmas
-    function atualizarSelectTurmas(turmas) {
-        const select = document.getElementById('turma-select');
-        select.innerHTML = '<option value="">Selecione uma turma</option>';
-        
-        turmas.forEach(turma => {
-            const option = document.createElement('option');
-            option.value = turma;
-            option.textContent = turma;
-            select.appendChild(option);
+                alunosTable.innerHTML = ''; // Limpa tabela de alunos
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar turmas:', error);
         });
-        
-        // Adiciona evento para debug
-        select.addEventListener('change', function() {
-            console.log('Turma selecionada:', this.value);
-        });
-    }
+    });
     
-    // Chama a função ao carregar a página
-    carregarTurmas();
-    
-    // Carrega alunos da turma selecionada
+    // Carrega alunos quando turma é selecionada
     turmaSelect.addEventListener('change', function() {
+        const escola = escolaSelect.value;
         const turma = this.value;
-        if (!turma) return;
+        if (!escola || !turma) return;
         
         fetch('/api/get_class', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ class: turma })
+            body: JSON.stringify({ 
+                school: escola,
+                class: turma 
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 alunosTable.innerHTML = '';
-                data.alunos.forEach((aluno, index) => {
+                data.alunos.forEach(aluno => {
                     const row = alunosTable.insertRow();
                     
                     // Nome do aluno
@@ -109,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         presencaSelect.appendChild(option);
                     });
-                    
                     cellPresenca.appendChild(presencaSelect);
                     
                     // Observação
@@ -125,11 +128,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Adicionar aluno manualmente
+    // Adicionar aluno manualmente (sua funcionalidade)
     addAlunoBtn.addEventListener('click', function() {
+        const escola = escolaSelect.value;
         const turma = turmaSelect.value;
-        if (!turma) {
-            alert('Selecione uma turma primeiro');
+        
+        if (!escola || !turma) {
+            alert('Selecione uma escola e turma primeiro');
             return;
         }
         
@@ -162,13 +167,15 @@ document.addEventListener('DOMContentLoaded', function() {
             obsInput.value = '';
             cellObs.appendChild(obsInput);
             
-            // Adiciona o aluno à estrutura de classes no frontend
-            if (!appData.classes[turma]) {
-                appData.classes[turma] = [];
+            // Atualiza estruturas de dados locais
+            if (!appData.schools[escola]) {
+                appData.schools[escola] = {};
             }
-            appData.classes[turma].push(nomeAluno);
+            if (!appData.schools[escola][turma]) {
+                appData.schools[escola][turma] = [];
+            }
+            appData.schools[escola][turma].push(nomeAluno);
             
-            // Inicializa os status para o novo aluno
             if (!appData.attendance_status[turma]) {
                 appData.attendance_status[turma] = {};
             }
@@ -183,21 +190,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Salvar chamada
     salvarChamadaBtn.addEventListener('click', function() {
+        const escola = escolaSelect.value;
         const turma = turmaSelect.value;
-        if (!turma) {
-            alert('Selecione uma turma primeiro');
-            return;
-        }
         
-        // Garante que a turma está nas estruturas de dados
-        if (!appData.classes[turma]) {
-            appData.classes[turma] = [];
-        }
-        if (!appData.attendance_status[turma]) {
-            appData.attendance_status[turma] = {};
-        }
-        if (!appData.observations[turma]) {
-            appData.observations[turma] = {};
+        if (!escola || !turma) {
+            alert('Selecione uma escola e turma primeiro');
+            return;
         }
         
         const alunosData = [];
@@ -205,21 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].cells;
-            const nome = cells[0].textContent;
-            const presenca = cells[1].querySelector('select').value;
-            const observacao = cells[2].querySelector('input').value;
-            
-            // Atualiza as estruturas de dados
-            if (!appData.classes[turma].includes(nome)) {
-                appData.classes[turma].push(nome);
-            }
-            appData.attendance_status[turma][nome] = presenca;
-            appData.observations[turma][nome] = observacao;
-            
             alunosData.push({
-                nome: nome,
-                presenca: presenca,
-                observacao: observacao
+                nome: cells[0].textContent,
+                presenca: cells[1].querySelector('select').value,
+                observacao: cells[2].querySelector('input').value
             });
         }
         
@@ -229,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                escola: escola,  // Adicionado escola
                 turma: turma,
                 alunos: alunosData
             })
@@ -236,12 +224,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Chamada da turma ' + turma + ' salva com sucesso!');
-                // Marca a turma como salva
+                alert('Chamada salva com sucesso!');
                 appData.saved_classes.add(turma);
             } else {
-                alert('Erro ao salvar chamada: ' + (data.error || 'Desconhecido'));
+                alert('Erro ao salvar: ' + (data.error || 'Erro desconhecido'));
             }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Falha ao comunicar com o servidor');
         });
     });
     
@@ -250,6 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/api/export_excel';
     });
     
-    // Carrega turmas ao iniciar
-    carregarTurmas();
+    // Inicializa carregando as escolas
+    carregarEscolas();
 });

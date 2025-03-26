@@ -16,15 +16,16 @@ app.secret_key = 'senha_ultramente_secreta'
 
 # Dados em memória
 app_data = {
-    'classes': {},
+    'schools': {},         # { 'NomeEscola': { 'Turma1': [alunos], ... }, ... }
+    'selected_school': None,
     'selected_class': None,
-    'students': [],
-    'attendance_status': {},
-    'observations': {},
+    'attendance_status': {},  # { 'Turma1': { 'Aluno1': 'P', ... }, ... }
+    'observations': {},       # { 'Turma1': { 'Aluno1': 'obs', ... }, ... }
     'file_uploaded': False,
-    'html_content': None,
+    'html_content': {},       # { 'NomeEscola': <conteúdo HTML> }
     'current_user': None,
-    'saved_classes': set()
+    'periodo': None,
+    'saved_classes': set()   
 }
 
 @app.route('/')
@@ -56,59 +57,85 @@ def login():
 
 @app.route('/api/upload', methods=['POST'])
 def handle_file_upload():
-    if 'file' not in request.files:
+    if 'files' not in request.files:
         return jsonify({'success': False, 'error': 'Nenhum arquivo enviado'})
     
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'success': False, 'error': 'Nome de arquivo vazio'})
+    files = request.files.getlist('files')
+    if not files:
+        return jsonify({'success': False, 'error': 'Nenhum arquivo selecionado'})
     
     try:
-        html_content = file.read().decode('utf-8')
-        classes_dict = parse_html_content(html_content)
+        for file in files:
+            if file.filename == '':
+                continue
+            html_content = file.read().decode('utf-8')
+            
+            # Nome da escola = nome do arquivo sem extensão
+            school_name = os.path.splitext(file.filename)[0]
+            classes_dict = parse_html_content(html_content)
+            
+            # Armazena no app_data
+            if school_name not in app_data['schools']:
+                app_data['schools'][school_name] = {}
+            app_data['schools'][school_name].update(classes_dict)
+            app_data['html_content'][school_name] = html_content
+            
+            # Inicializa attendance_status e observations para cada turma
+            for turma, alunos in classes_dict.items():
+                if turma not in app_data['attendance_status']:
+                    app_data['attendance_status'][turma] = {}
+                if turma not in app_data['observations']:
+                    app_data['observations'][turma] = {}
+                
+                for aluno in alunos:
+                    if aluno not in app_data['attendance_status'][turma]:
+                        app_data['attendance_status'][turma][aluno] = 'P'
+                    if aluno not in app_data['observations'][turma]:
+                        app_data['observations'][turma][aluno] = ''
         
-        # Converte o dicionário para lista de turmas
-        turmas = list(classes_dict.keys())
-        
-        # Atualiza os dados da aplicação
-        app_data['html_content'] = html_content
-        app_data['classes'] = classes_dict
         app_data['file_uploaded'] = True
-        
-        # Inicializa estruturas de presença
-        app_data['attendance_status'] = {turma: {aluno: 'P' for aluno in alunos} 
-                                       for turma, alunos in classes_dict.items()}
-        app_data['observations'] = {turma: {aluno: '' for aluno in alunos} 
-                                  for turma, alunos in classes_dict.items()}
-        
         return jsonify({
             'success': True,
-            'classes': turmas,  
-            'count': sum(len(alunos) for alunos in classes_dict.values()),
-            'message': 'Arquivo processado com sucesso'
+            'schools': list(app_data['schools'].keys()),
+            'message': 'Arquivos processados com sucesso'
         })
-        
+    
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/api/get_schools', methods=['GET'])
+def get_schools():
+    return jsonify({
+        'success': True,
+        'schools': list(app_data['schools'].keys())
+    })
+
+@app.route('/api/get_school_classes', methods=['POST'])
+def get_school_classes():
+    data = request.get_json()
+    school = data.get('school')
+    
+    if not school or school not in app_data['schools']:
+        return jsonify({'success': False, 'error': 'Escola não encontrada'})
+    
+    return jsonify({
+        'success': True,
+        'classes': list(app_data['schools'][school].keys())
+    })
 
 @app.route('/api/get_class', methods=['POST'])
 def get_class_data():
     data = request.get_json()
-    if not data or 'class' not in data:
-        return jsonify({'success': False, 'error': 'Dados inválidos'})
+    school = data.get('school')
+    turma = data.get('class')
     
-    turma = data['class']
-    if turma not in app_data.get('classes', {}):
+    if not school or school not in app_data['schools']:
+        return jsonify({'success': False, 'error': 'Escola não encontrada'})
+    if turma not in app_data['schools'][school]:
         return jsonify({'success': False, 'error': 'Turma não encontrada'})
     
-    # Garante que as estruturas de dados existam
-    if turma not in app_data['attendance_status']:
-        app_data['attendance_status'][turma] = {}
-    if turma not in app_data['observations']:
-        app_data['observations'][turma] = {}
-    
     alunos_data = []
-    for aluno in app_data['classes'][turma]:
+    for aluno in app_data['schools'][school][turma]:
         alunos_data.append({
             'nome': aluno,
             'presenca': app_data['attendance_status'][turma].get(aluno, 'P'),
@@ -133,65 +160,81 @@ def get_turmas():
 @app.route('/api/save_attendance', methods=['POST'])
 def save_attendance_data():
     data = request.json
+    escola = data.get('escola')
     turma = data.get('turma')
     alunos = data.get('alunos')
     
+    if not all([escola, turma, alunos]):
+        return jsonify({'success': False, 'error': 'Dados incompletos'})
+    
     try:
-        # Garante que a turma existe nas estruturas de dados
-        if turma not in app_data['classes']:
-            app_data['classes'][turma] = []
+        # Verifica se a escola existe, se não, cria
+        if escola not in app_data['schools']:
+            app_data['schools'][escola] = {}
         
+        # Verifica se a turma existe na escola, se não, cria
+        if turma not in app_data['schools'][escola]:
+            app_data['schools'][escola][turma] = []
+        
+        # Garante que as estruturas de status existam
         if turma not in app_data['attendance_status']:
             app_data['attendance_status'][turma] = {}
-        
         if turma not in app_data['observations']:
             app_data['observations'][turma] = {}
         
-        # Atualiza os dados para todos os alunos
+        # Atualiza os dados
         for aluno in alunos:
             nome = aluno['nome']
             
-            # Adiciona o aluno à lista da turma se não existir
-            if nome not in app_data['classes'][turma]:
-                app_data['classes'][turma].append(nome)
+            # Adiciona o aluno à escola/turma se não existir
+            if nome not in app_data['schools'][escola][turma]:
+                app_data['schools'][escola][turma].append(nome)
             
             # Atualiza presença e observação
             app_data['attendance_status'][turma][nome] = aluno['presenca']
             app_data['observations'][turma][nome] = aluno['observacao']
         
-        # Marca a turma como salva
         app_data['saved_classes'].add(turma)
-        
         return jsonify({'success': True})
+    
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/export_excel', methods=['GET'])
 def export_attendance():
     try:
-        # Filtra apenas turmas que foram explicitamente salvas
-        saved_attendance = {
-            turma: app_data['attendance_status'][turma]
-            for turma in app_data['saved_classes']
-            if turma in app_data['classes'] and turma in app_data['attendance_status']
-        }
+        if not app_data['saved_classes']:
+            return jsonify({'success': False, 'error': 'Nenhuma turma salva para exportação'})
         
-        saved_observations = {
-            turma: app_data['observations'].get(turma, {})
-            for turma in app_data['saved_classes']
-            if turma in app_data['classes']
-        }
+        # Prepara os dados para exportação
+        classes_to_export = {}
+        attendance_to_export = {}
+        observations_to_export = {}
         
-        # Obtém o período do usuário (armazenado durante o login)
-        periodo = request.args.get('periodo') or "Não informado"
+        for turma in app_data['saved_classes']:
+            # Encontra a escola da turma
+            escola = None
+            for escola_name, turmas in app_data['schools'].items():
+                if turma in turmas:
+                    escola = escola_name
+                    break
+            
+            if escola:
+                classes_to_export[turma] = app_data['schools'][escola][turma]
+                attendance_to_export[turma] = app_data['attendance_status'].get(turma, {})
+                observations_to_export[turma] = app_data['observations'].get(turma, {})
         
+        # Obtém o período do usuário
+        periodo = request.args.get('periodo') or app_data.get('periodo', 'Não informado')
+        
+        # Gera o Excel
         output = export_to_excel(
-            {turma: app_data['classes'][turma] for turma in app_data['saved_classes']},
-            saved_attendance,
-            saved_observations,
+            classes_to_export,
+            attendance_to_export,
+            observations_to_export,
             app_data['html_content'],
             app_data['current_user'],
-            app_data.get('periodo', 'Não informado')  # Usa o período armazenado
+            periodo
         )
         
         file_name = get_excel_filename()

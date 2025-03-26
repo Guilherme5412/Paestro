@@ -6,13 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileName = document.getElementById('file-name');
     const processBtn = document.getElementById('process-btn');
     const results = document.getElementById('results');
-    const turmasCount = document.getElementById('turmas-count');
-    const alunosCount = document.getElementById('alunos-count');
+    const escolasCount = document.getElementById('escolas-count');
     const goToChamadaBtn = document.getElementById('go-to-chamada');
+    
+    // Estado para armazenar arquivos selecionados
+    let selectedFiles = [];
     
     // Prevenir comportamentos padrão para drag and drop
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
     });
     
     function preventDefaults(e) {
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
     }
     
-    // Highlight drop area when item is dragged over it
+    // Highlight drop area
     ['dragenter', 'dragover'].forEach(eventName => {
         dropArea.addEventListener(eventName, highlight, false);
     });
@@ -38,16 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle dropped files
-    dropArea.addEventListener('drop', handleDrop, false);
-    
-    function handleDrop(e) {
+    dropArea.addEventListener('drop', function(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        
-        if (files.length) {
-            handleFiles(files);
-        }
-    }
+        handleFiles(files);
+    });
     
     // Handle file selection via button
     browseBtn.addEventListener('click', function() {
@@ -61,63 +59,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function handleFiles(files) {
-        const file = files[0];
+        // Converte FileList para array e filtra apenas HTML
+        const fileArray = Array.from(files).filter(file => 
+            file.name.match(/\.(html|htm)$/i)
+        );
         
-        // Verifica se é um arquivo HTML
-        if (!file.name.match(/\.(html|htm)$/i)) {
-            alert('Por favor, selecione um arquivo HTML');
+        if (fileArray.length === 0) {
+            alert('Por favor, selecione arquivos HTML (.html ou .htm)');
             return;
         }
         
-        // Exibe informações do arquivo
-        fileName.textContent = file.name;
+        // Atualiza lista de arquivos selecionados
+        selectedFiles = fileArray;
+        
+        // Atualiza UI
         fileInfo.style.display = 'block';
+        fileName.textContent = selectedFiles.map(f => f.name).join(', ');
         
         // Configura o botão de processar
-        processBtn.onclick = function() {
-            processFile(file);
-        };
+        processBtn.onclick = processSelectedFiles;
     }
     
-    function processFile(file) {
-        const reader = new FileReader();
+    function processSelectedFiles() {
+        if (selectedFiles.length === 0) {
+            alert('Nenhum arquivo válido selecionado');
+            return;
+        }
         
-        reader.onload = function(e) {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    turmasCount.textContent = data.classes.length;
-                    alunosCount.textContent = data.count;
-                    results.style.display = 'block';
-                    fileInfo.style.display = 'none';
-                    
-                    // Armazena as turmas no localStorage
-                    localStorage.setItem('turmas_disponiveis', JSON.stringify(data.classes));
-                    
-                    // Exibe mensagem com os primeiros nomes de turma para debug
-                    const primeirasTurmas = data.classes.slice(0, 3).join(', ');
-                    console.log('Turmas processadas:', primeirasTurmas + (data.classes.length > 3 ? '...' : ''));
-                } else {
-                    alert('Erro: ' + (data.error || 'Erro desconhecido'));
-                }
-            })
-            .catch(error => {
-                console.error('Erro no processamento:', error);
-                alert('Erro ao comunicar com o servidor');
-            });
-        };
+        // Mostra loading
+        processBtn.disabled = true;
+        processBtn.textContent = 'Processando...';
         
-        reader.readAsText(file);
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+            formData.append('files', file);
+        });
+        
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na resposta do servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Atualiza UI com resultados
+                escolasCount.textContent = data.schools.length;
+                results.style.display = 'block';
+                fileInfo.style.display = 'none';
+                
+                // Limpa seleção após sucesso
+                selectedFiles = [];
+                fileInput.value = '';
+                
+                // Armazena escolas no localStorage se necessário
+                localStorage.setItem('ultimas_escolas', JSON.stringify(data.schools));
+            } else {
+                throw new Error(data.error || 'Erro desconhecido no processamento');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert(`Falha no processamento: ${error.message}`);
+        })
+        .finally(() => {
+            processBtn.disabled = false;
+            processBtn.textContent = 'Processar Arquivos';
+        });
     }
     
     goToChamadaBtn.addEventListener('click', function() {
         window.location.href = '/chamada';
     });
+    
+    // Melhoria: Focar na área de drop quando a página carrega
+    dropArea.focus();
 });
