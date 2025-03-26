@@ -15,6 +15,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportarExcelBtn = document.getElementById('exportar-excel-btn');
     const dataAtualElement = document.getElementById('data-atual');
     const nomeUsuarioElement = document.getElementById('nome-usuario');
+    const limparTurmasBtn = document.getElementById('limpar-turmas-btn');
+
+    limparTurmasBtn.addEventListener('click', function() {
+        if (confirm('Tem certeza que deseja limpar todas as turmas salvas? Esta ação não pode ser desfeita.')) {
+            fetch('/api/clear_saved_classes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Turmas salvas foram limpas com sucesso!');
+                    appData.saved_classes.clear();
+                } else {
+                    alert('Erro ao limpar turmas: ' + (data.error || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Falha ao comunicar com o servidor');
+            });
+        }
+    });
     
     // Exibe data atual e usuário
     const hoje = new Date();
@@ -238,7 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Exportar para Excel
     exportarExcelBtn.addEventListener('click', function() {
-        window.location.href = '/api/export_excel';
+        const escola = escolaSelect.value;
+        window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}`;
     });
     
     // Inicializa carregando as escolas

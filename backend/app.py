@@ -199,10 +199,20 @@ def save_attendance_data():
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/api/clear_saved_classes', methods=['POST'])
+def clear_saved_classes():
+    try:
+        app_data['saved_classes'].clear()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/export_excel', methods=['GET'])
 def export_attendance():
     try:
+        escola_selecionada = request.args.get('escola')
+        
         if not app_data['saved_classes']:
             return jsonify({'success': False, 'error': 'Nenhuma turma salva para exportação'})
         
@@ -213,26 +223,33 @@ def export_attendance():
         
         for turma in app_data['saved_classes']:
             # Encontra a escola da turma
-            escola = None
-            for escola_name, turmas in app_data['schools'].items():
+            escola_da_turma = None
+            for escola, turmas in app_data['schools'].items():
                 if turma in turmas:
-                    escola = escola_name
+                    escola_da_turma = escola
                     break
             
-            if escola:
-                classes_to_export[turma] = app_data['schools'][escola][turma]
+            # Se encontrou a escola e (não há escola selecionada OU é a escola selecionada)
+            if escola_da_turma and (not escola_selecionada or escola_da_turma == escola_selecionada):
+                classes_to_export[turma] = app_data['schools'][escola_da_turma][turma]
                 attendance_to_export[turma] = app_data['attendance_status'].get(turma, {})
                 observations_to_export[turma] = app_data['observations'].get(turma, {})
+        
+        # Verifica se encontrou turmas para exportar
+        if not classes_to_export:
+            if escola_selecionada:
+                return jsonify({'success': False, 'error': f'Nenhuma turma salva encontrada para a escola {escola_selecionada}'})
+            return jsonify({'success': False, 'error': 'Nenhuma turma válida encontrada para exportação'})
         
         # Obtém o período do usuário
         periodo = request.args.get('periodo') or app_data.get('periodo', 'Não informado')
         
-        # Gera o Excel
+        # Gera o Excel apenas com as turmas filtradas
         output = export_to_excel(
             classes_to_export,
             attendance_to_export,
             observations_to_export,
-            app_data['html_content'],
+            app_data['html_content'].get(escola_selecionada) if escola_selecionada else None,
             app_data['current_user'],
             periodo
         )
@@ -247,6 +264,8 @@ def export_attendance():
         )
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+    
+    
 
 if __name__ == '__main__':
     # Verifica os caminhos antes de iniciar
