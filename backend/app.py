@@ -76,7 +76,7 @@ def handle_file_upload():
         
         return jsonify({
             'success': True,
-            'classes': turmas,  # Agora enviando a lista de turmas
+            'classes': turmas,  
             'count': sum(len(alunos) for alunos in classes_dict.values()),
             'message': 'Arquivo processado com sucesso'
         })
@@ -115,7 +115,7 @@ def get_class_data():
         'total_alunos': len(alunos_data)
     })
 
-# Adicione este novo endpoint para obter apenas a lista de turmas
+
 @app.route('/api/get_turmas', methods=['GET'])
 def get_turmas():
     return jsonify({

@@ -1,146 +1,235 @@
 :root {
-    --primary-color: #1a237e;
-    --secondary-color: #303f9f;
-    --accent-color: #ff5722;
-    --light-color: #f5f5f5;
-    --dark-color: #212121;
-    --success-color: #4caf50;
-    --warning-color: #ff9800;
-    --error-color: #f44336;
+    --primary-color: #0a192f;
+    --secondary-color: #172a45;
+    --accent-color: #aed2ca;
+    --light-color: #f8f9fa;
+    --dark-color: #333;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --border-radius: 6px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.2s ease;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 body {
     background-color: var(--light-color);
     color: var(--dark-color);
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
     background-color: var(--primary-color);
     color: white;
-    padding: 1rem;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
 header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-bottom: 0.5rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
 
 header h2 {
-    font-size: 1.2rem;
-    font-weight: normal;
+    font-size: 1.1rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
 }
 
 .header-info {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 2rem;
     background-color: var(--secondary-color);
     font-size: 0.9rem;
+    margin-top: 1rem;
 }
 
 main {
     padding: 2rem;
-    min-height: calc(100vh - 120px);
+    flex: 1;
 }
 
 footer {
     background-color: var(--primary-color);
     color: white;
     text-align: center;
-    padding: 1rem;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    padding: 1.25rem;
+    font-size: 0.9rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    line-height: 1.4;
+    min-height: 40px;
 }
 
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(10, 25, 47, 0.2);
 }
 
 .btn-primary:hover {
-    background-color: var(--secondary-color);
+    background-color: #0d2347;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(10, 25, 47, 0.2);
 }
 
 .btn-secondary {
     background-color: white;
     color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary:hover {
-    background-color: var(--light-color);
+    background-color: #f9fafb;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-tertiary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: none;
+    padding: 0.65rem 1rem;
+}
+
+.btn-tertiary:hover {
+    background-color: rgba(10, 25, 47, 0.05);
+}
+
+#exportar-excel-btn {
+    background-color: #d1eeda;
+    color: #000000;
+    border: 1px solid #addfbf;
+}
+
+#exportar-excel-btn:hover {
+    background-color: #dcfce7;
+    border-color: #86b898;
+}
+
+#exportar-excel-btn::before {
+    content: "";
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%2316a34a' d='M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm60.1 106.5L224 336l60.1 93.5c5.1 8-.6 18.5-10.1 18.5h-34.9c-4.4 0-8.5-2.4-10.6-6.3C208.9 405.5 192 373 192 373c-6.4 14.8-10 20-36.6 68.8-2.1 3.9-6.1 6.3-10.5 6.3H110c-9.5 0-15.2-10.5-10.1-18.5l60.3-93.5-60.3-93.5c-5.2-8 .6-18.5 10.1-18.5h34.8c4.4 0 8.5 2.4 10.6 6.3 26.1 48.8 20 38.2 36.6 68.8 6.4 14.8 10 20 36.6 68.8 2.1 3.9 6.1 6.3 10.5 6.3h34.9c9.5 0 15.2-10.5 10.1-18.5zM384 121.9v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right: 0.5rem;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
     font-size: 1rem;
+    transition: var(--transition);
 }
 
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(10, 25, 47, 0.1);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
+    font-size: 0.95rem;
 }
 
 th, td {
-    padding: 0.75rem;
+    padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 th {
     background-color: var(--primary-color);
     color: white;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
 }
 
 tr:hover {
-    background-color: #f5f5f5;
+    background-color: rgba(10, 25, 47, 0.02);
 }
 
 select {
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e0e0;
     font-size: 1rem;
+    background-color: white;
+}
+
+.presenca-select:focus, .observacao-input:focus {
+    outline: 2px solid var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.25rem;
+    }
+    
+    .header-info {
+        padding: 0.75rem 1.25rem;
+    }
+    
+    main {
+        padding: 1.5rem;
+    }
+    
+    th, td {
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        width: 100%;
+    }
 }

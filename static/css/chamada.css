@@ -3,97 +3,93 @@
     margin: 0 auto;
     background: white;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.chamada-container h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.4rem;
 }
 
 .filtros {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
-    align-items: flex-end; /* Alinha os itens na base */
-}
-
-.filtros .form-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-/* Estilo para o select de escola (visualmente desativado) */
-#escola-select {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-}
-
-/* Estilo para o select de turma (destaque) */
-#turma-select {
-    border: 2px solid #1a237e;
-    font-weight: bold;
+    align-items: flex-end;
 }
 
 #add-aluno-btn {
     align-self: flex-end;
     height: fit-content;
     white-space: nowrap;
-}
-
-.tabela-container {
-    max-height: 500px;
-    overflow-y: auto;
-    margin-bottom: 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.tabela-container table {
-    width: 100%;
-}
-
-.tabela-container th {
-    position: sticky;
-    top: 0;
-    background-color: #1a237e;
-    color: white;
-    z-index: 10;
+    margin-bottom: 0.25rem;
 }
 
 .actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    align-items: center;
+}
+
+#salvar-chamada-btn,
+#exportar-excel-btn {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actions .btn {
+    min-width: auto;
+    width: auto;
 }
 
 .presenca-select {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    padding: 0.65rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    background-color: white;
+    font-size: 0.9rem;
 }
 
 .observacao-input {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    background-color: white;
 }
 
-/* Efeitos de hover para melhor interação */
-tr:hover {
-    background-color: #f5f5f5;
+.tabela-container {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 2rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
-.presenca-select:focus, .observacao-input:focus {
-    outline: 2px solid #303f9f;
+.tabela-container table {
+    width: 100%;
+}
+
+#exportar-excel-btn::before {
+    width: 1rem;
+    height: 1rem;
 }
 
 @media (max-width: 768px) {
     .chamada-container {
-        padding: 1rem;
+        padding: 1.5rem;
     }
     
     .filtros {
@@ -112,9 +108,13 @@ tr:hover {
     
     .actions {
         flex-direction: column;
+        gap: 0.75rem;
     }
     
-    .btn-primary, .btn-secondary {
+    #add-aluno-btn,
+    #salvar-chamada-btn,
+    #exportar-excel-btn {
         width: 100%;
+        padding: 0.75rem 1rem;
     }
 }

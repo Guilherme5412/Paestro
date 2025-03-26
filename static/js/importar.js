@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     results.style.display = 'block';
                     fileInfo.style.display = 'none';
                     
-                    // ATUALIZAÇÃO IMPORTANTE: Armazena as turmas no localStorage
+                    // Armazena as turmas no localStorage
                     localStorage.setItem('turmas_disponiveis', JSON.stringify(data.classes));
                     
                     // Exibe mensagem com os primeiros nomes de turma para debug

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paestro - Chamada</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/chamada.css">
 </head>
@@ -12,27 +13,34 @@
         <h1>Paestro</h1>
         <h2>Registro de Frequência</h2>
         <div class="header-info">
-            <span id="data-atual"></span>
-            <span id="nome-usuario"></span>
+            <span id="data-atual">26 de Março de 2025</span>
+            <span id="nome-usuario">Usuário: Admin</span>
         </div>
     </header>
     
     <main>
         <div class="chamada-container">
+            <h3>Registro de Chamada</h3>
+            
             <div class="filtros">
                 <div class="form-group">
-                    <label for="escola-select">Escola:</label>
+                    <label for="escola-select">Escola</label>
                     <select id="escola-select">
                         <option value="">Selecione a escola</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="turma-select">Turma:</label>
+                    <label for="turma-select">Turma</label>
                     <select id="turma-select">
                         <option value="">Selecione a turma</option>
                     </select>
                 </div>
-                <button id="add-aluno-btn" class="btn-secondary">+ Adicionar Aluno</button>
+                <button id="add-aluno-btn" class="btn-secondary">
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                    </svg>
+                    Adicionar Aluno
+                </button>
             </div>
             
             <div class="tabela-container">
@@ -51,8 +59,15 @@
             </div>
             
             <div class="actions">
-                <button id="salvar-chamada-btn" class="btn-primary">Salvar Chamada</button>
-                <button id="exportar-excel-btn" class="btn-secondary">Exportar para Excel</button>
+                <button id="salvar-chamada-btn" class="btn-primary">
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
+                    </svg>
+                    Salvar Chamada
+                </button>
+                <button id="exportar-excel-btn" class="btn-secondary">
+                    Exportar para Excel
+                </button>
             </div>
         </div>
     </main>
