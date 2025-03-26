@@ -46,7 +46,13 @@ def attendance_page():
 def login():
     data = request.json
     app_data['current_user'] = data.get('username')
-    return jsonify({'success': True, 'username': app_data['current_user']})
+    app_data['periodo'] = data.get('periodo')  # Armazena o período
+    return jsonify({
+        'success': True, 
+        'username': app_data['current_user'],
+        'periodo': app_data['periodo']  # Retorna o período para debug
+    })
+
 
 @app.route('/api/upload', methods=['POST'])
 def handle_file_upload():
@@ -161,11 +167,16 @@ def export_attendance():
             if turma in app_data['classes']
         }
         
+        # Obtém o período do usuário (armazenado durante o login)
+        periodo = request.args.get('periodo') or "Não informado"
+        
         output = export_to_excel(
             {turma: app_data['classes'][turma] for turma in app_data['saved_classes']},
             saved_attendance,
             saved_observations,
-            app_data['html_content']
+            app_data['html_content'],
+            app_data['current_user'],
+            app_data.get('periodo', 'Não informado')  # Usa o período armazenado
         )
         
         file_name = get_excel_filename()
