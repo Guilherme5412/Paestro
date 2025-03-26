@@ -103,6 +103,49 @@ def handle_file_upload():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
     
+@app.route('/api/get_imported_files', methods=['GET'])
+def get_imported_files():
+    try:
+        # Retorna a lista de escolas importadas (arquivos)
+        files = [{'name': escola} for escola in app_data['schools'].keys()]
+        return jsonify({'success': True, 'files': files})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/delete_file', methods=['POST'])
+def delete_file():
+    try:
+        data = request.json
+        filename = data.get('filename')
+        
+        if not filename:
+            return jsonify({'success': False, 'error': 'Nome do arquivo não fornecido'})
+        
+        if filename in app_data['schools']:
+            # Remove todas as turmas associadas da lista de salvas
+            for turma in app_data['schools'][filename].keys():
+                app_data['saved_classes'].discard(turma)
+            
+            # Remove a escola/arquivo
+            del app_data['schools'][filename]
+            del app_data['html_content'][filename]
+            
+            # Remove turmas relacionadas das estruturas de dados
+            turmas_para_remover = set()
+            for turma in app_data['attendance_status'].keys():
+                if turma in app_data['schools'].get(filename, {}):
+                    turmas_para_remover.add(turma)
+            
+            for turma in turmas_para_remover:
+                app_data['attendance_status'].pop(turma, None)
+                app_data['observations'].pop(turma, None)
+            
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Arquivo não encontrado'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
 @app.route('/api/get_schools', methods=['GET'])
 def get_schools():
     return jsonify({

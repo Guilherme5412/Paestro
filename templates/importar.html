@@ -17,7 +17,6 @@
         <div class="import-container">
             <h3>Importar Arquivos HTML</h3>
             <div class="upload-area" id="drop-area">
-                <!-- Adicione multiple e mude o nome para files -->
                 <input type="file" id="file-input" name="files" accept=".html,.htm" multiple style="display: none;">
                 <div class="upload-icon">
                     <svg viewBox="0 0 24 24">
@@ -27,13 +26,26 @@
                 <p>Arraste e solte os arquivos HTML aqui ou</p>
                 <button id="browse-btn" class="btn-secondary">Selecione os arquivos</button>
             </div>
+
+            <!-- Lista de arquivos importados -->
+            <div class="imported-files-container">
+                <h4>Arquivos Importados</h4>
+                <div class="imported-files-header">
+                    <span>Nome do Arquivo</span>
+                    <span>Ações</span>
+                </div>
+                <ul id="imported-files-list">
+                    <!-- Itens serão adicionados dinamicamente -->
+                </ul>
+            </div>
+
             <div id="file-info" style="display: none;">
                 <p>Arquivos selecionados: <span id="file-name"></span></p>
                 <button id="process-btn" class="btn-primary">Processar Arquivos</button>
             </div>
+
             <div id="results" style="display: none;">
                 <h4>Resultado da Importação</h4>
-                <!-- Mude para escolas-count ao invés de turmas-count -->
                 <p>Escolas importadas: <span id="escolas-count"></span></p>
                 <button id="go-to-chamada" class="btn-primary">Ir para Chamada</button>
             </div>

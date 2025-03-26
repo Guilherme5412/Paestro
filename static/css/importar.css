@@ -1,5 +1,5 @@
 .import-container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     background: white;
     padding: 2.5rem;
@@ -71,6 +71,73 @@
     font-size: 1.25rem;
 }
 
+/* Estilos para a lista de arquivos importados */
+.imported-files-container {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.imported-files-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+#imported-files-list {
+    list-style: none;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+#imported-files-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+#imported-files-list li:last-child {
+    border-bottom: none;
+}
+
+.file-name {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-file-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.delete-file-btn:hover {
+    background-color: #c82333;
+}
+
+.empty-message {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
 @media (max-width: 600px) {
     .import-container {
         padding: 1.75rem;
@@ -79,5 +146,18 @@
     
     .upload-area {
         padding: 2rem 1.5rem;
+    }
+    
+    .imported-files-header {
+        font-size: 0.875rem;
+    }
+    
+    #imported-files-list li {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .delete-file-btn {
+        padding: 0.25rem 0.5rem;
     }
 }

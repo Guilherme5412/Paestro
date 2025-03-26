@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const results = document.getElementById('results');
     const escolasCount = document.getElementById('escolas-count');
     const goToChamadaBtn = document.getElementById('go-to-chamada');
+    const importedFilesList = document.getElementById('imported-files-list');
     
     // Estado para armazenar arquivos selecionados
     let selectedFiles = [];
@@ -57,6 +58,84 @@ document.addEventListener('DOMContentLoaded', function() {
             handleFiles(this.files);
         }
     });
+    
+    // Carrega arquivos importados ao iniciar
+    loadImportedFiles();
+    
+    function loadImportedFiles() {
+        fetch('/api/get_imported_files')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateFilesList(data.files);
+                } else {
+                    console.error('Erro ao carregar arquivos:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar arquivos:', error);
+                showEmptyMessage();
+            });
+    }
+    
+    function updateFilesList(files) {
+        importedFilesList.innerHTML = '';
+        
+        if (files.length === 0) {
+            showEmptyMessage();
+            return;
+        }
+        
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span class="file-name">${file.name}</span>
+                <button data-filename="${file.name}" class="delete-file-btn">
+                    Excluir
+                </button>
+            `;
+            importedFilesList.appendChild(li);
+        });
+        
+        // Adiciona eventos aos botões de exclusão
+        document.querySelectorAll('.delete-file-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filename = this.getAttribute('data-filename');
+                deleteFile(filename);
+            });
+        });
+    }
+    
+    function showEmptyMessage() {
+        importedFilesList.innerHTML = `
+            <li class="empty-message">Nenhum arquivo importado ainda</li>
+        `;
+    }
+    
+    function deleteFile(filename) {
+        if (confirm(`Tem certeza que deseja excluir o arquivo "${filename}"?\nEsta ação removerá todas as turmas associadas.`)) {
+            fetch('/api/delete_file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filename })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadImportedFiles();
+                    alert('Arquivo e turmas associadas foram removidos com sucesso!');
+                } else {
+                    alert('Erro ao excluir arquivo: ' + (data.error || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Falha ao comunicar com o servidor');
+            });
+        }
+    }
     
     function handleFiles(files) {
         // Converte FileList para array e filtra apenas HTML
@@ -116,8 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedFiles = [];
                 fileInput.value = '';
                 
-                // Armazena escolas no localStorage se necessário
-                localStorage.setItem('ultimas_escolas', JSON.stringify(data.schools));
+                // Atualiza lista de arquivos importados
+                loadImportedFiles();
             } else {
                 throw new Error(data.error || 'Erro desconhecido no processamento');
             }
