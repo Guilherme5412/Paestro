@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paestro - Chamada</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/chamada.css">
+</head>
+<body>
+    <header>
+        <h1>Paestro</h1>
+        <h2>Registro de Frequência</h2>
+        <div class="header-info">
+            <span id="data-atual"></span>
+            <span id="nome-usuario"></span>
+        </div>
+    </header>
+    
+    <main>
+        <div class="chamada-container">
+            <div class="filtros">
+                <div class="form-group">
+                    <label for="escola-select">Escola:</label>
+                    <select id="escola-select">
+                        <option value="">Selecione a escola</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="turma-select">Turma:</label>
+                    <select id="turma-select">
+                        <option value="">Selecione a turma</option>
+                    </select>
+                </div>
+                <button id="add-aluno-btn" class="btn-secondary">+ Adicionar Aluno</button>
+            </div>
+            
+            <div class="tabela-container">
+                <table id="alunos-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Presença</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Alunos serão inseridos aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="actions">
+                <button id="salvar-chamada-btn" class="btn-primary">Salvar Chamada</button>
+                <button id="exportar-excel-btn" class="btn-secondary">Exportar para Excel</button>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Secretaria de Educação © 2025</p>
+    </footer>
+    
+    <script src="/static/js/chamada.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+.chamada-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filtros {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: flex-end; /* Alinha os itens na base */
+}
+
+.filtros .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Estilo para o select de escola (visualmente desativado) */
+#escola-select {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* Estilo para o select de turma (destaque) */
+#turma-select {
+    border: 2px solid #1a237e;
+    font-weight: bold;
+}
+
+#add-aluno-btn {
+    align-self: flex-end;
+    height: fit-content;
+    white-space: nowrap;
+}
+
+.tabela-container {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tabela-container table {
+    width: 100%;
+}
+
+.tabela-container th {
+    position: sticky;
+    top: 0;
+    background-color: #1a237e;
+    color: white;
+    z-index: 10;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.presenca-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.observacao-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+/* Efeitos de hover para melhor interação */
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.presenca-select:focus, .observacao-input:focus {
+    outline: 2px solid #303f9f;
+}
+
+@media (max-width: 768px) {
+    .chamada-container {
+        padding: 1rem;
+    }
+    
+    .filtros {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filtros .form-group {
+        width: 100%;
+    }
+    
+    #add-aluno-btn {
+        align-self: flex-start;
+        width: 100%;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+    }
+}
