@@ -12,7 +12,7 @@ app = Flask(__name__,
 
 # Configurações
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.secret_key = 'sua_chave_secreta_aqui'
+app.secret_key = 'senha_ultramente_secreta'
 
 # Dados em memória
 app_data = {
@@ -23,7 +23,8 @@ app_data = {
     'observations': {},
     'file_uploaded': False,
     'html_content': None,
-    'current_user': None
+    'current_user': None,
+    'saved_classes': set()
 }
 
 @app.route('/')
@@ -137,6 +138,9 @@ def save_attendance_data():
             app_data['attendance_status'][turma][aluno['nome']] = aluno['presenca']
             app_data['observations'][turma][aluno['nome']] = aluno['observacao']
         
+        # Adiciona a turma ao conjunto de turmas salvas
+        app_data['saved_classes'].add(turma)
+        
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -144,12 +148,26 @@ def save_attendance_data():
 @app.route('/api/export_excel', methods=['GET'])
 def export_attendance():
     try:
+        # Filtra apenas turmas que foram explicitamente salvas
+        saved_attendance = {
+            turma: app_data['attendance_status'][turma]
+            for turma in app_data['saved_classes']
+            if turma in app_data['classes'] and turma in app_data['attendance_status']
+        }
+        
+        saved_observations = {
+            turma: app_data['observations'].get(turma, {})
+            for turma in app_data['saved_classes']
+            if turma in app_data['classes']
+        }
+        
         output = export_to_excel(
-            app_data['classes'],
-            app_data['attendance_status'],
-            app_data['observations'],
+            {turma: app_data['classes'][turma] for turma in app_data['saved_classes']},
+            saved_attendance,
+            saved_observations,
             app_data['html_content']
         )
+        
         file_name = get_excel_filename()
         
         return send_file(

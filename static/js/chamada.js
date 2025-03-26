@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Chamada salva com sucesso!');
+                alert('Chamada da turma ' + turma + ' salva com sucesso!');
             } else {
                 alert('Erro ao salvar chamada: ' + (data.error || 'Desconhecido'));
             }
