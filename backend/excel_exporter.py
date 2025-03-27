@@ -2,18 +2,19 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 import io
 from datetime import datetime
+import re
 
 def export_to_excel(classes, attendance_status, observations, html_content=None, current_user=None, periodo=None, escola_nome=None):
     wb = Workbook()
     ws = wb.active
-    ws.title = "Lista de Presença"
+    ws.title = "LISTA DE PRESENÇA"  # Título em maiúsculas
 
     # Cabeçalho com informações gerais
     header_rows = [
-        ("Unidade:", escola_nome or "Não informado"),  # Adicionado escola_nome
-        ("Responsáveis:", current_user or "Não informado"),
-        ("Período:", periodo or "Não informado"),
-        ("Data e hora:", datetime.now().strftime('%d/%m/%Y %H:%M'))
+        ("UNIDADE:", (escola_nome or "NÃO INFORMADO").upper()),
+        ("RESPONSÁVEIS:", (current_user or "NÃO INFORMADO").upper()),
+        ("PERÍODO:", (periodo or "NÃO INFORMADO").upper()),
+        ("DATA E HORA:", datetime.now().strftime('%d/%m/%Y %H:%M'))
     ]
 
     for i, (label, value) in enumerate(header_rows, start=1):
@@ -26,18 +27,18 @@ def export_to_excel(classes, attendance_status, observations, html_content=None,
 
     if not classes:
         ws.merge_cells(f"A{current_row}:D{current_row}")
-        ws[f"A{current_row}"] = "Nenhuma chamada salva encontrada"
+        ws[f"A{current_row}"] = "NENHUMA CHAMADA SALVA ENCONTRADA"
         ws[f"A{current_row}"].font = Font(italic=True)
     else:
         for turma, alunos in classes.items():
             # Cabeçalho da turma
             ws.merge_cells(f"A{current_row}:D{current_row}")
-            ws[f"A{current_row}"] = f"Turma: {turma}"
+            ws[f"A{current_row}"] = f"TURMA: {turma.upper()}"
             ws[f"A{current_row}"].font = Font(bold=True, size=12)
             current_row += 1
 
             # Cabeçalho da tabela
-            headers = ["Aluno", "Presença", "Observação"]
+            headers = ["ALUNO", "PRESENÇA", "OBSERVAÇÃO"]
             for col, header in enumerate(headers, start=1):
                 ws.cell(row=current_row, column=col).value = header
                 ws.cell(row=current_row, column=col).font = Font(bold=True)
@@ -62,18 +63,31 @@ def export_to_excel(classes, attendance_status, observations, html_content=None,
     output.seek(0)
     return output
 
-def get_excel_filename(escola_nome=None, periodo=None):
-    data = datetime.now().strftime('%d_%m_%Y')
+def get_excel_filename(escola_nome=None, periodo=None, current_user=None):
+    data = datetime.now().strftime('%d-%m-%Y')
     
-    # Remove caracteres inválidos e formata o nome da escola
+    # Formata o nome da escola (remove caracteres especiais e converte para maiúsculas)
     if escola_nome:
-        # Substitui espaços por underscore e converte para maiúsculas
-        nome_limpo = ''.join(c for c in escola_nome if c.isalnum() or c in (' ', '_')).rstrip()
-        nome_limpo = nome_limpo.replace(' ', '_').upper()  # Espaços viram _ e tudo maiúsculo
+        # Remove caracteres não alfanuméricos exceto espaços e underscores
+        nome_escola = re.sub(r'[^\w\s-]', '', escola_nome).strip()
+        # Substitui espaços por underscores e converte para maiúsculas
+        nome_escola = nome_escola.replace(' ', '_').upper()
     else:
-        nome_limpo = "PRESENCA"
+        nome_escola = "ESCOLA_INDEFINIDA"
     
-    # Verifica se o período foi informado e converte para maiúsculas
-    periodo_formatado = periodo.upper() if periodo else "INDEFINIDO"
+    # Formata o nome da dupla
+    if current_user:
+        # Remove caracteres não alfanuméricos exceto espaços e underscores
+        nome_dupla = re.sub(r'[^\w\s-]', '', current_user).strip()
+        # Substitui espaços por underscores e converte para maiúsculas
+        nome_dupla = nome_dupla.replace(' ', '_').upper()
+    else:
+        nome_dupla = "DUPLA_INDEFINIDA"
     
-    return f"{nome_limpo}_{data}_{periodo_formatado}.xlsx"
+    # Formata o período
+    if periodo:
+        periodo_formatado = periodo.upper()
+    else:
+        periodo_formatado = "PERIODO_INDEFINIDO"
+    
+    return f"{nome_escola}_{data}_{nome_dupla}_{periodo_formatado}.XLSX"

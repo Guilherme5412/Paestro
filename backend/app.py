@@ -263,7 +263,8 @@ def clear_saved_classes():
 def export_attendance():
     try:
         escola_selecionada = request.args.get('escola')
-        periodo = app_data.get('periodo', 'indefinido')  # Obtém o período do login
+        periodo = app_data.get('periodo', 'indefinido')  
+        current_user = app_data.get('current_user', 'indefinido')
         
         if not app_data['saved_classes']:
             return jsonify({'success': False, 'error': 'Nenhuma turma salva para exportação'})
@@ -305,7 +306,7 @@ def export_attendance():
             escola_selecionada  # Passa o nome da escola como parâmetro
         )
         
-        file_name = get_excel_filename(escola_selecionada, periodo)
+        file_name = get_excel_filename(escola_selecionada, periodo,current_user)
         
         return send_file(
             output,
