@@ -56,11 +56,21 @@
     transition: var(--transition);
     font-size: 1rem;
     margin: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-action:hover {
     background-color: #0d2347;
     transform: translateY(-1px);
+}
+
+.btn-action svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
 
 .buttons-container {
@@ -180,6 +190,12 @@
     .btn-action {
         width: 100%;
         margin: 0.5rem 0;
+        gap: 0.25rem;
+    }
+    
+    .btn-action svg {
+        width: 16px;
+        height: 16px;
     }
     
     .imported-files-header {
