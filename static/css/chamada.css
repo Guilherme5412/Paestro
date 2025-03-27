@@ -87,6 +87,48 @@
     height: 1rem;
 }
 
+/* Botões de presença */
+.presenca-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.presenca-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.presenca-btn:hover {
+    transform: scale(1.1);
+}
+
+.presenca-btn.selected-P {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.presenca-btn.selected-F {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.presenca-btn.selected-FJ {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+}
+
 @media (max-width: 768px) {
     .chamada-container {
         padding: 1.5rem;

@@ -123,22 +123,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     const cellNome = row.insertCell(0);
                     cellNome.textContent = aluno.nome;
                     
-                    // Presença (P, F, FJ)
+                    // Presença (P, F, FJ) - Agora com botões redondos
                     const cellPresenca = row.insertCell(1);
-                    const presencaSelect = document.createElement('select');
-                    presencaSelect.className = 'presenca-select';
-                    presencaSelect.dataset.aluno = aluno.nome;
-                    
+                    const presencaContainer = document.createElement('div');
+                    presencaContainer.className = 'presenca-buttons';
+                    presencaContainer.dataset.aluno = aluno.nome;
+    
                     ['P', 'F', 'FJ'].forEach(opcao => {
-                        const option = document.createElement('option');
-                        option.value = opcao;
-                        option.textContent = opcao;
-                        if (opcao === aluno.presenca) {
-                            option.selected = true;
-                        }
-                        presencaSelect.appendChild(option);
+                        const btn = document.createElement('button');
+                        btn.className = `presenca-btn ${aluno.presenca === opcao ? 'selected-' + opcao : ''}`;
+                        btn.textContent = opcao;
+                        btn.dataset.value = opcao;
+                        
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Remove todas as seleções primeiro
+                            presencaContainer.querySelectorAll('.presenca-btn').forEach(b => {
+                                b.className = 'presenca-btn';
+                            });
+                            
+                            // Adiciona a classe de seleção ao botão clicado
+                            this.className = `presenca-btn selected-${opcao}`;
+                            
+                            // Atualiza o status no appData
+                            if (turma && appData.attendance_status[turma]) {
+                                appData.attendance_status[turma][aluno.nome] = opcao;
+                            }
+                        });
+                        
+                        presencaContainer.appendChild(btn);
                     });
-                    cellPresenca.appendChild(presencaSelect);
+    
+                    cellPresenca.appendChild(presencaContainer);
                     
                     // Observação
                     const cellObs = row.insertCell(2);
@@ -171,18 +188,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const cellNome = row.insertCell(0);
             cellNome.textContent = nomeAluno;
             
+            // Presença (P, F, FJ) - Agora com botões redondos
             const cellPresenca = row.insertCell(1);
-            const presencaSelect = document.createElement('select');
-            presencaSelect.className = 'presenca-select';
-            presencaSelect.dataset.aluno = nomeAluno;
+            const presencaContainer = document.createElement('div');
+            presencaContainer.className = 'presenca-buttons';
+            presencaContainer.dataset.aluno = nomeAluno;
+    
             ['P', 'F', 'FJ'].forEach(opcao => {
-                const option = document.createElement('option');
-                option.value = opcao;
-                option.textContent = opcao;
-                if (opcao === 'P') option.selected = true;
-                presencaSelect.appendChild(option);
+                const btn = document.createElement('button');
+                btn.className = `presenca-btn ${opcao === 'P' ? 'selected-P' : ''}`;
+                btn.textContent = opcao;
+                btn.dataset.value = opcao;
+                
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove todas as seleções primeiro
+                    presencaContainer.querySelectorAll('.presenca-btn').forEach(b => {
+                        b.className = 'presenca-btn';
+                    });
+                    
+                    // Adiciona a classe de seleção ao botão clicado
+                    this.className = `presenca-btn selected-${opcao}`;
+                    
+                    // Atualiza o status no appData
+                    if (turma && appData.attendance_status[turma]) {
+                        appData.attendance_status[turma][nomeAluno] = opcao;
+                    }
+                });
+                
+                presencaContainer.appendChild(btn);
             });
-            cellPresenca.appendChild(presencaSelect);
+    
+            cellPresenca.appendChild(presencaContainer);
             
             const cellObs = row.insertCell(2);
             const obsInput = document.createElement('input');
@@ -228,9 +266,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].cells;
+            const nome = cells[0].textContent;
+            const presencaBtn = cells[1].querySelector('.presenca-btn.selected-P, .presenca-btn.selected-F, .presenca-btn.selected-FJ');
+            const presenca = presencaBtn ? presencaBtn.dataset.value : 'P'; // Default para P se não encontrar
+            
             alunosData.push({
-                nome: cells[0].textContent,
-                presenca: cells[1].querySelector('select').value,
+                nome: nome,
+                presenca: presenca,
                 observacao: cells[2].querySelector('input').value
             });
         }
@@ -241,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                escola: escola,  // Adicionado escola
+                escola: escola,
                 turma: turma,
                 alunos: alunosData
             })
