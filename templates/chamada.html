@@ -22,25 +22,35 @@
         <div class="chamada-container">
             <h3>Chamada</h3>
             
-            <div class="filtros">
-                <div class="form-group">
-                    <label for="escola-select">Escola</label>
-                    <select id="escola-select">
-                        <option value="">Selecione a escola</option>
-                    </select>
+            <div class="filtros-container">
+                <div class="filtros">
+                    <div class="form-group">
+                        <label for="escola-select">Escola</label>
+                        <select id="escola-select">
+                            <option value="">Selecione a escola</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="turma-select">Turma</label>
+                        <select id="turma-select">
+                            <option value="">Selecione a turma</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="turma-select">Turma</label>
-                    <select id="turma-select">
-                        <option value="">Selecione a turma</option>
-                    </select>
+                <div class="filter-buttons">
+                    <button id="add-aluno-btn" class="btn-action">
+                        <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                        </svg>
+                        Adicionar Aluno
+                    </button>
+                    <button id="limpar-turmas-btn" class="btn-action">
+                        <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                        </svg>
+                        Limpar Turmas
+                    </button>
                 </div>
-                <button id="add-aluno-btn" class="btn-secondary">
-                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-                    </svg>
-                    Adicionar Aluno
-                </button>
             </div>
             
             <div class="tabela-container">
@@ -59,16 +69,15 @@
             </div>
             
             <div class="actions">
-                <button id="salvar-chamada-btn" class="btn-primary">
+                <button id="salvar-chamada-btn" class="btn-action">
                     <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
                         <path fill="currentColor" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
                     </svg>
                     Salvar Chamada
                 </button>
-                <button id="exportar-excel-btn" class="btn-secondary">
+                <button id="exportar-excel-btn" class="btn-action">
                     Exportar para Excel
                 </button>
-                <button id="limpar-turmas-btn" class="btn-danger">Limpar Turmas Salvas</button>
             </div>
         </div>
     </main>
