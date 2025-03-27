@@ -47,6 +47,29 @@
 
 #browse-btn {
     margin-top: 1.5rem;
+    min-width: 240px; /* Larger width */
+    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+#browse-btn:hover {
+    background-color: #0d2347;
+    transform: translateY(-1px);
+}
+
+#browse-btn .btn-icon {
+    width: 20px;
+    height: 20px;
 }
 
 #file-info {
