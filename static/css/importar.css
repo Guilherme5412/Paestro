@@ -5,10 +5,10 @@
     padding: 2.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+    text-align: center;
 }
 
 .import-container h3 {
-    text-align: center;
     margin-bottom: 2rem;
     color: var(--primary-color);
     font-size: 1.5rem;
@@ -45,14 +45,9 @@
     margin-bottom: 1rem;
 }
 
-#browse-btn {
-    margin-top: 1.5rem;
-    min-width: 240px; /* Larger width */
+.btn-action {
+    min-width: 240px;
     padding: 0.75rem 1.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
     background-color: var(--primary-color);
     color: white;
     border: none;
@@ -60,16 +55,19 @@
     cursor: pointer;
     transition: var(--transition);
     font-size: 1rem;
+    margin: 0.5rem;
 }
 
-#browse-btn:hover {
+.btn-action:hover {
     background-color: #0d2347;
     transform: translateY(-1px);
 }
 
-#browse-btn .btn-icon {
-    width: 20px;
-    height: 20px;
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
 }
 
 #file-info {
@@ -78,6 +76,7 @@
     background-color: #f8f9fa;
     border-radius: var(--border-radius);
     border: 1px solid #e0e0e0;
+    text-align: center;
 }
 
 #results {
@@ -86,6 +85,7 @@
     background-color: #e8f5e9;
     border-radius: var(--border-radius);
     border: 1px solid #c8e6c9;
+    text-align: center;
 }
 
 #results h4 {
@@ -99,6 +99,7 @@
     margin-top: 2rem;
     border-top: 1px solid #eee;
     padding-top: 1.5rem;
+    text-align: center;
 }
 
 .imported-files-header {
@@ -169,6 +170,16 @@
     
     .upload-area {
         padding: 2rem 1.5rem;
+    }
+    
+    .buttons-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-action {
+        width: 100%;
+        margin: 0.5rem 0;
     }
     
     .imported-files-header {
