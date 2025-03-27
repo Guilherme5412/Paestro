@@ -31,8 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const username = usernameInput.value.trim();
         const periodo = periodoSelect.value;
         
-        localStorage.setItem('paestro_usuario', username);
-        localStorage.setItem('paestro_periodo', periodo);
+        // Armazena temporariamente durante a sessão
+        sessionStorage.setItem('paestro_usuario_temp', username);  
+        sessionStorage.setItem('paestro_periodo_temp', periodo);
+
         
         fetch('/api/login', {
             method: 'POST',
@@ -72,8 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const username = usernameInput.value.trim();
         const periodo = periodoSelect.value;
         
-        localStorage.setItem('paestro_usuario', username);
-        localStorage.setItem('paestro_periodo', periodo);
+        // Armazena temporariamente durante a sessão
+        sessionStorage.setItem('paestro_usuario', username);
+        sessionStorage.setItem('paestro_periodo', periodo);
         
         fetch('/api/login', {
             method: 'POST',
@@ -102,9 +105,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Preenche campos se já existir no localStorage
-    const savedUser = localStorage.getItem('paestro_usuario');
-    const savedPeriodo = localStorage.getItem('paestro_periodo');
+    // Preenche campos se já existir na sessionStorage (durante a mesma sessão)
+    const savedUser = sessionStorage.getItem('paestro_usuario');
+    const savedPeriodo = sessionStorage.getItem('paestro_periodo');
     if (savedUser) usernameInput.value = savedUser;
     if (savedPeriodo) periodoSelect.value = savedPeriodo;
+
+    // Limpa o sessionStorage quando a janela/tab for fechada
+    window.addEventListener('beforeunload', function() {
+        if (!sessionStorage.getItem('isReloading')) {
+            sessionStorage.removeItem('paestro_usuario_temp');
+            sessionStorage.removeItem('paestro_periodo_temp');
+        }
+    });
+
+    // Marca recarregamento para não limpar os dados
+    window.addEventListener('unload', function() {
+        sessionStorage.setItem('isReloading', 'true');
+        setTimeout(() => {
+            sessionStorage.removeItem('isReloading');
+        }, 100);
+    });
 });

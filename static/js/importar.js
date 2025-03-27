@@ -18,7 +18,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Exibe data atual e usuário
     const hoje = new Date();
     dataAtualElement.textContent = hoje.toLocaleDateString('pt-BR');
-    nomeUsuarioElement.textContent = localStorage.getItem('paestro_usuario') || '';
+
+    // Busca o usuário do servidor (com fallback para sessionStorage)
+    fetch('/api/get_current_user')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const username = data.username || sessionStorage.getItem('paestro_usuario_temp') || '';
+                nomeUsuarioElement.textContent = `${username}`;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao obter usuário:', error);
+            nomeUsuarioElement.textContent = sessionStorage.getItem('paestro_usuario_temp') || '';
+        });
     
     // Prevenir comportamentos padrão para drag and drop
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {

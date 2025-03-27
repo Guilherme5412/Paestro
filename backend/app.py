@@ -103,6 +103,14 @@ def handle_file_upload():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
     
+@app.route('/api/get_current_user', methods=['GET'])
+def get_current_user():
+    return jsonify({
+        'success': True,
+        'username': app_data.get('current_user', ''),
+        'periodo': app_data.get('periodo', '')
+    })
+
 @app.route('/api/get_imported_files', methods=['GET'])
 def get_imported_files():
     try:
