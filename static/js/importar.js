@@ -9,9 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const escolasCount = document.getElementById('escolas-count');
     const goToChamadaBtn = document.getElementById('go-to-chamada');
     const importedFilesList = document.getElementById('imported-files-list');
+    const dataAtualElement = document.getElementById('data-atual');
+    const nomeUsuarioElement = document.getElementById('nome-usuario');
     
     // Estado para armazenar arquivos selecionados
     let selectedFiles = [];
+
+    // Exibe data atual e usuário
+    const hoje = new Date();
+    dataAtualElement.textContent = hoje.toLocaleDateString('pt-BR');
+    nomeUsuarioElement.textContent = localStorage.getItem('paestro_usuario') || '';
     
     // Prevenir comportamentos padrão para drag and drop
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
