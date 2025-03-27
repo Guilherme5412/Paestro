@@ -3,14 +3,14 @@ from openpyxl.styles import Font, Alignment
 import io
 from datetime import datetime
 
-def export_to_excel(classes, attendance_status, observations, html_content=None, current_user=None, periodo=None):
+def export_to_excel(classes, attendance_status, observations, html_content=None, current_user=None, periodo=None, escola_nome=None):
     wb = Workbook()
     ws = wb.active
     ws.title = "Lista de Presença"
 
     # Cabeçalho com informações gerais
     header_rows = [
-        ("Unidade:", "Não informado"),
+        ("Unidade:", escola_nome or "Não informado"),  # Adicionado escola_nome
         ("Responsáveis:", current_user or "Não informado"),
         ("Período:", periodo or "Não informado"),
         ("Data e hora:", datetime.now().strftime('%d/%m/%Y %H:%M'))
@@ -62,5 +62,18 @@ def export_to_excel(classes, attendance_status, observations, html_content=None,
     output.seek(0)
     return output
 
-def get_excel_filename():
-    return f"Presenca_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+def get_excel_filename(escola_nome=None, periodo=None):
+    data = datetime.now().strftime('%d_%m_%Y')
+    
+    # Remove caracteres inválidos e formata o nome da escola
+    if escola_nome:
+        # Substitui espaços por underscore e converte para maiúsculas
+        nome_limpo = ''.join(c for c in escola_nome if c.isalnum() or c in (' ', '_')).rstrip()
+        nome_limpo = nome_limpo.replace(' ', '_').upper()  # Espaços viram _ e tudo maiúsculo
+    else:
+        nome_limpo = "PRESENCA"
+    
+    # Verifica se o período foi informado e converte para maiúsculas
+    periodo_formatado = periodo.upper() if periodo else "INDEFINIDO"
+    
+    return f"{nome_limpo}_{data}_{periodo_formatado}.xlsx"

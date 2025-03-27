@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Adicionar aluno manualmente (sua funcionalidade)
+    // Adicionar aluno manualmente
     addAlunoBtn.addEventListener('click', function() {
         const escola = escolaSelect.value;
         const turma = turmaSelect.value;
@@ -264,6 +264,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Exportar para Excel
     exportarExcelBtn.addEventListener('click', function() {
         const escola = escolaSelect.value;
+        if (!escola) {
+            alert('Selecione uma escola antes de exportar');
+            return;
+        }
         window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}`;
     });
     

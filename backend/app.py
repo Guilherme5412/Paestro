@@ -255,6 +255,7 @@ def clear_saved_classes():
 def export_attendance():
     try:
         escola_selecionada = request.args.get('escola')
+        periodo = app_data.get('periodo', 'indefinido')  # Obtém o período do login
         
         if not app_data['saved_classes']:
             return jsonify({'success': False, 'error': 'Nenhuma turma salva para exportação'})
@@ -272,13 +273,11 @@ def export_attendance():
                     escola_da_turma = escola
                     break
             
-            # Se encontrou a escola e (não há escola selecionada OU é a escola selecionada)
             if escola_da_turma and (not escola_selecionada or escola_da_turma == escola_selecionada):
                 classes_to_export[turma] = app_data['schools'][escola_da_turma][turma]
                 attendance_to_export[turma] = app_data['attendance_status'].get(turma, {})
                 observations_to_export[turma] = app_data['observations'].get(turma, {})
         
-        # Verifica se encontrou turmas para exportar
         if not classes_to_export:
             if escola_selecionada:
                 return jsonify({'success': False, 'error': f'Nenhuma turma salva encontrada para a escola {escola_selecionada}'})
@@ -287,17 +286,18 @@ def export_attendance():
         # Obtém o período do usuário
         periodo = request.args.get('periodo') or app_data.get('periodo', 'Não informado')
         
-        # Gera o Excel apenas com as turmas filtradas
+        # Gera o Excel com o nome da escola
         output = export_to_excel(
             classes_to_export,
             attendance_to_export,
             observations_to_export,
             app_data['html_content'].get(escola_selecionada) if escola_selecionada else None,
             app_data['current_user'],
-            periodo
+            periodo,
+            escola_selecionada  # Passa o nome da escola como parâmetro
         )
         
-        file_name = get_excel_filename()
+        file_name = get_excel_filename(escola_selecionada, periodo)
         
         return send_file(
             output,
