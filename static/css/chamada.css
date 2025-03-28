@@ -226,6 +226,35 @@ select {
     background-size: 1rem;
 }
 
+/* Adicione no chamada.css */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-processing {
+    position: relative;
+    padding-left: 2.5rem;
+}
+
+.btn-processing::after {
+    content: "";
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
 /* Botão Exportar Chamadas */
 #exportar-chamada-btn {
     background-color: #2e8b57;

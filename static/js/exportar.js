@@ -56,12 +56,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // Implementação futura
     }
 
+    // **Exemplo teste de Salvar no drive**
+    async function salvarNoDrive() {
+        try {
+            const escola = sessionStorage.getItem('escola_selecionada') || '';
+            const response = await fetch(`/api/export_excel?escola=${encodeURIComponent(escola)}&auto_clear=true`);
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                // Aqui você implementaria o upload para o Drive
+                // Após upload bem-sucedido:
+                showSuccess('Arquivo salvo no Drive e chamadas limpas!');
+            } else {
+                throw new Error('Falha na exportação');
+            }
+        } catch (error) {
+            showError(`Erro: ${error.message}`);
+        }
+    }
+
     // Baixar Excel
     function baixarExcel() {
-        // Obter a escola selecionada
         const escola = sessionStorage.getItem('escola_selecionada') || '';
-        window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}`;
+        // Adiciona auto_clear=true para limpar após download
+        window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}&auto_clear=true`;
     }
+    
 
     // Configura os event listeners
     function setupEventListeners() {
