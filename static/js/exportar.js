@@ -1,4 +1,4 @@
-// Cache de elementos DOM
+// exportar.js atualizado
 const DOM = {
     elements: {},
     init: function() {
@@ -7,7 +7,8 @@ const DOM = {
             baixarExcelBtn: document.getElementById('baixar-excel-btn'),
             pastaDriveSelect: document.getElementById('pasta-drive'),
             dataAtualElement: document.getElementById('data-atual'),
-            nomeUsuarioElement: document.getElementById('nome-usuario')
+            nomeUsuarioElement: document.getElementById('nome-usuario'),
+            loadingIndicator: document.getElementById('loading-indicator') // Adicione este elemento no HTML
         };
         return this.elements;
     }
@@ -19,73 +20,111 @@ document.addEventListener('DOMContentLoaded', function() {
         baixarExcelBtn,
         pastaDriveSelect,
         dataAtualElement,
-        nomeUsuarioElement
+        nomeUsuarioElement,
+        loadingIndicator
     } = DOM.init();
 
     // Inicialização
     updateCurrentDate();
     loadCurrentUser();
+    loadDriveFolders(); // Carrega as pastas ao iniciar
     setupEventListeners();
 
-    // Atualiza a data atual
-    function updateCurrentDate() {
-        const hoje = new Date();
-        dataAtualElement.textContent = hoje.toLocaleDateString('pt-BR');
-    }
-
-    // Carrega o usuário atual
-    function loadCurrentUser() {
-        fetch('/api/get_current_user')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const username = data.username || sessionStorage.getItem('paestro_usuario_temp') || '';
-                    nomeUsuarioElement.textContent = username;
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao obter usuário:', error);
-                nomeUsuarioElement.textContent = sessionStorage.getItem('paestro_usuario_temp') || '';
-            });
-    }
-
-    // Salvar no Google Drive
-    function salvarNoDrive() {
-        const pastaSelecionada = pastaDriveSelect.value;
-        alert(`Funcionalidade em desenvolvimento. Arquivo será salvo na pasta: ${pastaSelecionada || 'Minha Unidade'}`);
-        // Implementação futura
-    }
-
-    // **Exemplo teste de Salvar no drive**
-    async function salvarNoDrive() {
+    // ============== [FUNÇÕES PRINCIPAIS] ==============
+    async function loadDriveFolders() {
         try {
-            const escola = sessionStorage.getItem('escola_selecionada') || '';
-            const response = await fetch(`/api/export_excel?escola=${encodeURIComponent(escola)}&auto_clear=true`);
+            showLoading();
+            const response = await fetch('/api/get_drive_folders');
+            const data = await response.json();
             
-            if (response.ok) {
-                const blob = await response.blob();
-                // Aqui você implementaria o upload para o Drive
-                // Após upload bem-sucedido:
-                showSuccess('Arquivo salvo no Drive e chamadas limpas!');
+            if (data.success) {
+                pastaDriveSelect.innerHTML = '<option value="">Selecione uma pasta</option>';
+                data.folders.forEach(folder => {
+                    const option = new Option(folder.name, folder.id);
+                    pastaDriveSelect.add(option);
+                });
             } else {
-                throw new Error('Falha na exportação');
+                showError('Erro ao carregar pastas: ' + (data.error || 'Desconhecido'));
             }
         } catch (error) {
-            showError(`Erro: ${error.message}`);
+            showError('Falha na conexão: ' + error.message);
+        } finally {
+            hideLoading();
         }
     }
 
-    // Baixar Excel
-    function baixarExcel() {
-        const escola = sessionStorage.getItem('escola_selecionada') || '';
-        // Adiciona auto_clear=true para limpar após download
-        window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}&auto_clear=true`;
-    }
-    
+    async function salvarNoDrive() {
+        const pastaSelecionada = pastaDriveSelect.value;
+        const escola = sessionStorage.getItem('escola_selecionada');
+        const periodo = document.querySelector('input[name="periodo"]:checked')?.value || '';
 
-    // Configura os event listeners
+        if (!pastaSelecionada) {
+            return showError('Selecione uma pasta do Drive!');
+        }
+
+        try {
+            showLoading();
+            const response = await fetch('/api/export_excel_drive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    folder_id: pastaSelecionada,
+                    escola: escola,
+                    periodo: periodo
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                alert(`✅ Arquivo salvo no Drive!\nID: ${result.drive_file_id}`);
+                sessionStorage.removeItem('escola_selecionada');
+            } else {
+                showError(result.error || 'Erro desconhecido');
+            }
+        } catch (error) {
+            showError('Erro na requisição: ' + error.message);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // ============== [FUNÇÕES AUXILIARES] ==============
+    function showLoading() {
+        loadingIndicator.style.display = 'block';
+        salvarDriveBtn.disabled = true;
+        baixarExcelBtn.disabled = true;
+    }
+
+    function hideLoading() {
+        loadingIndicator.style.display = 'none';
+        salvarDriveBtn.disabled = false;
+        baixarExcelBtn.disabled = false;
+    }
+
+    function showError(message) {
+        alert('❌ ' + message);
+        console.error(message);
+    }
+
+    function updateCurrentDate() {
+        dataAtualElement.textContent = new Date().toLocaleDateString('pt-BR');
+    }
+
+    async function loadCurrentUser() {
+        try {
+            const response = await fetch('/api/get_current_user');
+            const data = await response.json();
+            nomeUsuarioElement.textContent = data.username || 'Usuário não identificado';
+        } catch (error) {
+            console.error('Erro ao carregar usuário:', error);
+        }
+    }
+
     function setupEventListeners() {
         salvarDriveBtn.addEventListener('click', salvarNoDrive);
-        baixarExcelBtn.addEventListener('click', baixarExcel);
+        baixarExcelBtn.addEventListener('click', () => {
+            const escola = sessionStorage.getItem('escola_selecionada') || '';
+            window.location.href = `/api/export_excel?escola=${encodeURIComponent(escola)}&auto_clear=true`;
+        });
     }
 });
