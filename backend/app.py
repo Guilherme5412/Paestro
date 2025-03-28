@@ -161,6 +161,13 @@ def get_schools():
         'schools': list(app_data['schools'].keys())
     })
 
+@app.route('/api/get_saved_classes', methods=['GET'])
+def get_saved_classes():
+    return jsonify({
+        'success': True,
+        'saved_classes': list(app_data['saved_classes'])
+    })
+
 @app.route('/api/get_school_classes', methods=['POST'])
 def get_school_classes():
     data = request.get_json()
@@ -171,7 +178,8 @@ def get_school_classes():
     
     return jsonify({
         'success': True,
-        'classes': list(app_data['schools'][school].keys())
+        'classes': list(app_data['schools'][school].keys()),
+        'saved_classes': list(app_data['saved_classes'])  # Envia as turmas salvas
     })
 
 @app.route('/api/get_class', methods=['POST'])
