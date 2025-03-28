@@ -17,6 +17,7 @@ const DOM = {
             addAlunoBtn: document.getElementById('add-aluno-btn'),
             alunosTable: document.getElementById('alunos-table').getElementsByTagName('tbody')[0],
             salvarChamadaBtn: document.getElementById('salvar-chamada-btn'),
+            exportarChamadaBtn: document.getElementById('exportar-chamada-btn'),
             exportarExcelBtn: document.getElementById('exportar-excel-btn'),
             dataAtualElement: document.getElementById('data-atual'),
             nomeUsuarioElement: document.getElementById('nome-usuario'),
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         addAlunoBtn,
         alunosTable,
         salvarChamadaBtn,
-        exportarExcelBtn,
+        exportarChamadaBtn,
         dataAtualElement,
         nomeUsuarioElement,
         limparTurmasBtn
@@ -419,6 +420,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         turmaSelect.addEventListener('change', () => carregarAlunos(escolaSelect.value, turmaSelect.value));
         addAlunoBtn.addEventListener('click', adicionarAluno);
         salvarChamadaBtn.addEventListener('click', salvarChamada);
+        exportarChamadaBtn.addEventListener('click', () => {
+            window.location.href = '/exportar';
+        });
         exportarExcelBtn.addEventListener('click', exportarParaExcel);
         limparTurmasBtn.addEventListener('click', limparTurmas);
     }

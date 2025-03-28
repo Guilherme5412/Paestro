@@ -1,0 +1,57 @@
+.exportar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.exportar-drive-container,
+.exportar-local-container {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    align-items: center;
+    text-align: center;
+}
+
+#salvar-drive-btn,
+#baixar-excel-btn {
+    width: 180px; 
+}
+
+.exportar-container h4 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+/* Botão Salvar no Drive */
+#salvar-drive-btn {
+    background-color: #4285F4;
+    color: white;
+    margin-top: 1rem;
+}
+
+#salvar-drive-btn:hover {
+    background-color: #3367D6;
+    transform: translateY(-1px);
+}
+
+/* Botão Baixar */
+#baixar-excel-btn {
+    background-color: #2e8b57;
+    color: white;
+}
+
+#baixar-excel-btn:hover {
+    background-color: #3cb371;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .exportar-drive-container,
+    .exportar-local-container {
+        padding: 1rem;
+    }
+}

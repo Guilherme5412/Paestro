@@ -266,6 +266,13 @@ def clear_saved_classes():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+    
+
+@app.route('/exportar')
+def export_page():
+    return render_template('exportar.html',
+                         current_user=app_data['current_user'],
+                         current_date=datetime.now().strftime('%d/%m/%Y'))
 
 @app.route('/api/export_excel', methods=['GET'])
 def export_attendance():
@@ -282,6 +289,10 @@ def export_attendance():
         attendance_to_export = {}
         observations_to_export = {}
         
+        # Se nenhuma escola foi especificada, pega a primeira escola disponível
+        if not escola_selecionada and app_data['schools']:
+            escola_selecionada = next(iter(app_data['schools'].keys()))
+        
         for turma in app_data['saved_classes']:
             # Encontra a escola da turma
             escola_da_turma = None
@@ -294,6 +305,8 @@ def export_attendance():
                 classes_to_export[turma] = app_data['schools'][escola_da_turma][turma]
                 attendance_to_export[turma] = app_data['attendance_status'].get(turma, {})
                 observations_to_export[turma] = app_data['observations'].get(turma, {})
+                # Atualiza a escola_selecionada para garantir que usaremos a correta
+                escola_selecionada = escola_da_turma
         
         if not classes_to_export:
             if escola_selecionada:
@@ -314,7 +327,7 @@ def export_attendance():
             escola_selecionada  # Passa o nome da escola como parâmetro
         )
         
-        file_name = get_excel_filename(escola_selecionada, periodo,current_user)
+        file_name = get_excel_filename(escola_selecionada, periodo, current_user)
         
         return send_file(
             output,
