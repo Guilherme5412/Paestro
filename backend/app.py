@@ -341,9 +341,9 @@ def export_attendance():
     
 
 if __name__ == '__main__':
-    # Verifica os caminhos antes de iniciar
+    import os
     print(f"Template folder: {app.template_folder}")
     print(f"Static folder: {app.static_folder}")
     print(f"Templates existentes: {os.listdir(app.template_folder)}")
-    
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
